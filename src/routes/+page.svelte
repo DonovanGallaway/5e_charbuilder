@@ -3,11 +3,15 @@
 	import { goto } from '$app/navigation';
 	import { get } from 'svelte/store';
     import { onMount } from 'svelte';
+	import { Rules } from '../lib/presets/rules.js';
 
-
+	let rolls = [];
+	let showSubclass = false;
+	let subclassList = [];
 	let character = {
 		name: '',
 		class: '',
+		subclass: '',
 		level: 1,
 		attributes: {
 			strength: 10,
@@ -17,7 +21,6 @@
 			wisdom: 10,
 			charisma: 10
 		},
-		proficiency: 2,
 		skills: {
 			acrobatics: false,
 			animalHandling: false,
@@ -50,7 +53,7 @@
 		initiative: 0,
 		speed: 30,
 		hitPoints: 10,
-		hitDice: 'd10',
+		hitDice: 10,
 		classFeatures: [],
 		equipment: [],
 		spells: [],
@@ -87,18 +90,40 @@
 	const skills = Object.keys(character.skills);
 	const savingThrows = Object.keys(character.savingThrows);
 
-    console.log(character);
-
-
-
 	function handleSubmit() {
 		character.classFeatures = classFeaturesString.split('\n').filter(Boolean);
 		character.equipment = equipmentString.split('\n').filter(Boolean);
 		character.spells = spellsString.split('\n').filter(Boolean);
 		characterStore.set(character);
-        console.log(character)
 		goto('/character-sheet');
 	}
+
+	function onRoll(attribute){
+		character.attributes[attribute] = Rules.roll4d6DropLowest();
+	}
+
+	function rollArray(){
+		rolls = []
+		for(let i = 0; i < 6; i++){
+			rolls = [...rolls, Rules.roll4d6DropLowest()];
+		}
+	}
+
+	function checkSubclass(){
+		let subclassLevel;
+		if(character.class === 'LLMonk'){
+			subclassLevel = 3;
+		}
+		showSubclass = character.level >= subclassLevel;
+		subclassList = showSubclass ? Rules.subclasses[character.class] : [];
+		console.log(showSubclass)
+	}
+
+	function updateCharacter() {
+		Rules.updateCharacter(character);
+	}
+
+
 </script>
 
 <h1>Create your DnD Character</h1>
@@ -110,15 +135,35 @@
 		<label><h3>Class</h3></label>
 		<input type="text" bind:value={character.class} required />
 		<label><h3>Level</h3></label>
-		<input type="number" bind:value={character.level} min="1" required />
+		<input type="number" bind:value={character.level} on:change={checkSubclass} min="1" required />
+		<label><h4>Use Preset Class</h4></label>
+		<select bind:value={character.class} on:change={checkSubclass}>
+			<option value="LLMonk">Monk (LL)</option>
+		</select>
+		{#if showSubclass}
+			<label><h3>Subclass</h3></label>
+			{#each subclassList as subclass}
+				<input type="radio" bind:group={character.subclass} value={subclass} /> {subclass}
+			{/each}
+		{/if}
+		<button type="button" on:click={updateCharacter}>Update Character</button>
+		
 	</div>
 
 	<div class="form-section grid-2">
 		<h2>Attributes</h2>
+		<button type="button" on:click={rollArray}>Roll Array</button>
+		<p>
+			{#each rolls as roll, i}
+				{roll}{i === 5 ? '' : ', '}
+			{/each}
+		</p>
+		<button type="button" on:click={() => character.attributes = { strength: 10, dexterity: 10, constitution: 10, intelligence: 10, wisdom: 10, charisma: 10 }}>Reset</button>
 		{#each Object.keys(character.attributes) as attribute}
 			<div>
 				<label>{attribute.charAt(0).toUpperCase() + attribute.slice(1)}</label>
 				<input type="number" bind:value={character.attributes[attribute]} min="1" />
+				<button type="button" on:click={() => onRoll(attribute)}>Roll</button>
 			</div>
 		{/each}
 	</div>

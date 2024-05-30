@@ -1,30 +1,24 @@
 <script>
 import { onMount } from 'svelte';
-import { marked } from 'marked';
-import { get } from 'svelte/store';
 import { characterStore } from '../../lib/store';
-import DOMPurify from 'dompurify';
-import { html2pdf } from 'html2pdf.js';
+import { Rules, getSkillModifier  } from '../../lib/presets/rules.js';
 
 let character;
 let markdownContent = '';
+let proficiencyBonus;
 
 onMount(() => {
     characterStore.subscribe(value => {
         character = value;
+        proficiencyBonus = Rules.getProficiencyBonus(character.level);
     });
 });
 
 const capitalize = str => str.charAt(0).toUpperCase() + str.slice(1);
 
+
 const editCharacter = () => {
     
-};
-
-const saveAsPDF = () => {
-    console.log(html2pdf)
-    const element = document.querySelector('.character-sheet');
-    html2pdf(element);
 };
 </script>
 
@@ -34,29 +28,29 @@ const saveAsPDF = () => {
             <h1>{character.name}</h1>
             <p><strong>Class:</strong> {character.class}</p>
             <p><strong>Level:</strong> {character.level}</p>
+            <p><strong>Proficiency Bonus: {proficiencyBonus}</strong></p>
         </header>
         <div class="grid-container">
             <section class="attributes">
                 <h2>Attributes</h2>
                 <ul>
                     {#each Object.keys(character.attributes) as attr}
-                        <li><strong>{capitalize(attr)}:</strong> {character.attributes[attr]}</li>
+                        <li><strong>{capitalize(attr)}:</strong> {character.attributes[attr]} ({Rules.getAbilityModifier(character.attributes[attr])})</li>
                     {/each}
                 </ul>
             </section>
             <section class="skills">
                 <h2>Skills</h2>
                 <ul>
-                    {#each Object.entries(character.skills).filter(([_, proficient]) => proficient) as [skill]}
-                        <li>{capitalize(skill)}</li>
+                    {#each Object.entries(character.skills) as skill}
+                        <li>{capitalize(skill[0])}: {getSkillModifier(character.attributes[Rules.mapSkills[skill[0]]], proficiencyBonus, skill[1])}</li>
                     {/each}
-                </ul>
             </section>
             <section class="saving-throws">
                 <h2>Saving Throws</h2>
                 <ul>
-                    {#each Object.entries(character.savingThrows).filter(([_, proficient]) => proficient) as [savingThrow]}
-                        <li>{capitalize(savingThrow)}</li>
+                    {#each Object.entries(character.savingThrows) as save}
+                        <li>{capitalize(save[0])}: {getSkillModifier(character.attributes[save[0]], proficiencyBonus, save[1],)}</li>
                     {/each}
                 </ul>
             </section>
@@ -107,7 +101,6 @@ const saveAsPDF = () => {
                 </ul>
             </section>
         </div>
-        <button class="save-button" on:click={saveAsPDF}>Save as PDF</button>
     </div>
 {:else}
     <p>No character data available.</p>
