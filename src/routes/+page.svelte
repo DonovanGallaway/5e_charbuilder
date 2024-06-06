@@ -136,7 +136,7 @@
 		<input type="text" bind:value={character.class} required />
 		<label><h3>Level</h3></label>
 		<input type="number" bind:value={character.level} on:change={checkSubclass} min="1" required />
-		<label><h4>Use Preset Class</h4></label>
+		<!-- <label><h4>Use Preset Class</h4></label>
 		<select bind:value={character.class} on:change={checkSubclass}>
 			<option value="LLMonk">Monk (LL)</option>
 		</select>
@@ -145,7 +145,7 @@
 			{#each subclassList as subclass}
 				<input type="radio" bind:group={character.subclass} value={subclass} /> {subclass}
 			{/each}
-		{/if}
+		{/if} -->
 		<button type="button" on:click={updateCharacter}>Update Character</button>
 		
 	</div>
