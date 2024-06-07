@@ -23,7 +23,7 @@
 		},
 		skills: {
 			acrobatics: false,
-			animalHandling: false,
+			'animal handling': false,
 			arcana: false,
 			athletics: false,
 			deception: false,
@@ -37,7 +37,7 @@
 			performance: false,
 			persuasion: false,
 			religion: false,
-			sleightOfHand: false,
+			'sleight of hand': false,
 			stealth: false,
 			survival: false
 		},
@@ -126,10 +126,10 @@
 
 </script>
 
-<h1>Create your DnD Character</h1>
+<h1 class="text-align-center">Create your DnD Character</h1>
 
 <form on:submit|preventDefault={handleSubmit}>
-	<div class="form-section">
+	<div class="form-section char-info">
 		<label><h3>Name</h3></label>
 		<input type="text" bind:value={character.name} required />
 		<label><h3>Class</h3></label>
@@ -171,15 +171,15 @@
 	<div class="form-section">
 		<h2>Skills</h2>
 		{#each skills as skill}
-			<div>
+			<div class="text-align-center">
 				<label>{skill.charAt(0).toUpperCase() + skill.slice(1)}</label>
 				<input type="checkbox" bind:checked={character.skills[skill]} />
 			</div>
 		{/each}
 	</div>
 
-	<div class="form-section">
-		<h2>Saving Throws</h2>
+	<div class="saving-throws text-align-center">
+		<div class="big-text">Saving Throws</div>
 		{#each savingThrows as savingThrow}
 			<div>
 				<label>{savingThrow.charAt(0).toUpperCase() + savingThrow.slice(1)}</label>
@@ -188,7 +188,7 @@
 		{/each}
 	</div>
 
-	<div class="form-section grid-2">
+	<div class="form-section grid-2 combat-info">
 		<label>Armor Class</label>
 		<input type="number" bind:value={character.armorClass} min="1" />
 		<label>Initiative</label>
@@ -269,6 +269,10 @@
 
 	button {
 		grid-column: span 3;
+		display:flex;
+		align-items: center;
+		text-align: center;
+		justify-content: center;
 		padding: 10px 20px;
 		background-color: #007bff;
 		color: white;
@@ -276,6 +280,36 @@
 		border-radius: 5px;
 		cursor: pointer;
 		text-align: center;
-		font-size: 1em;
+		font-size: 1.25em;
 	}
+
+	.text-align-center{
+		text-align: center;
+	}
+
+	.combat-info{
+		padding-top: 1em;
+	}
+
+	.saving-throws {
+		background-color: #f9f9f9;
+		padding: 15px;
+		border-radius: 8px;
+		border: 1px solid #ddd;
+		display: grid;
+		/* gap: 10px; */
+	}
+	.big-text{
+		font-size:3em;
+		grid-column: span 3;
+	}
+
+	.char-info{
+		background-color: #f9f9f9;
+		padding: 15px;
+		border-radius: 8px;
+		border: 1px solid #ddd;
+		display: flex;
+		flex-direction: column;
+ 	}
 </style>
